@@ -1,0 +1,39 @@
+# EditorConfig helps maintain consistent coding styles
+# https://editorconfig.org
+
+root = true
+
+# All files
+[*]
+indent_style = space
+indent_size = 2
+end_of_line = crlf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# Python files
+[*.py]
+indent_size = 4
+max_line_length = 100
+
+# Markdown files
+[*.{md,markdown}]
+trim_trailing_whitespace = false
+
+# Batch files
+[*.{bat,cmd}]
+indent_style = space
+indent_size = 2
+
+# YAML files
+[*.{yml,yaml}]
+indent_size = 2
+
+# JSON files
+[*.json]
+indent_size = 2
+
+# INI files
+[*.{ini,cfg}]
+indent_size = 2

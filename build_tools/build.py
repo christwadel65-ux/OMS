@@ -83,7 +83,7 @@ try:
         sys.executable,
         "-m",
         "PyInstaller",
-        "build_tools/OutilMaintenance.spec",
+        "build_tools/dev.spec",
         "--clean",
         "--noconfirm"
     ], check=True)

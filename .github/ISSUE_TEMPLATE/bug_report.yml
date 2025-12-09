@@ -1,0 +1,83 @@
+name: Bug Report
+description: Signaler un bug ou un problème
+title: "[BUG] "
+labels: ["bug"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci de signaler ce bug ! Veuillez remplir les informations ci-dessous.
+
+  - type: input
+    id: version
+    attributes:
+      label: Version de l'application
+      description: "Ex: 2.1.0"
+      placeholder: "2.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: windows_version
+    attributes:
+      label: Version de Windows
+      description: "Ex: Windows 10 21H2 ou Windows 11"
+      placeholder: "Windows 10 21H2"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description du problème
+      description: Décrivez le problème de manière claire et précise
+      placeholder: "Le problème est..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Étapes pour reproduire
+      description: Décrivez les étapes exactes pour reproduire le problème
+      placeholder: |
+        1. Ouvrir l'application
+        2. Aller dans l'onglet...
+        3. Cliquer sur...
+        4. Le problème apparaît
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportement attendu
+      description: Qu'est-ce qui devrait se passer normalement ?
+      placeholder: "L'application devrait..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Comportement actuel
+      description: Qu'est-ce qui se passe réellement ?
+      placeholder: "Au lieu de cela, l'application..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs d'erreur (optionnel)
+      description: Collez les logs d'erreur s'il y en a
+      placeholder: "Collez le contenu des logs ici..."
+      render: shell
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Contexte supplémentaire (optionnel)
+      description: Ajoutez toute autre information pertinente
+      placeholder: "Informations supplémentaires..."

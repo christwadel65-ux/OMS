@@ -972,7 +972,7 @@ class MaintenanceTool(QMainWindow):
                         row, col, QTableWidgetItem(val))
 
     def lancer_recherche_globale(self):
-        """Lance une recherche globale de fichiers sur le disque C:\."""
+        """Lance une recherche globale de fichiers sur le disque C:\\."""
         mot_cle, ok = QInputDialog.getText(
             self, "Recherche globale",
             "Entrer le mot-clé à rechercher:\n(Attention: cette opération peut être longue)")
@@ -1377,26 +1377,29 @@ class MaintenanceTool(QMainWindow):
 
                 data = [["Programme", "Version", "Chemin"]]
                 for prog in self.tous_les_programmes:
-                nom = Paragraph(prog[0], styles['Normal'])
-                version = Paragraph(prog[1], styles['Normal'])
-                chemin = Paragraph(prog[2], styles['Normal'])
-                data.append([nom, version, chemin])
+                    nom = Paragraph(prog[0], styles['Normal'])
+                    version = Paragraph(prog[1], styles['Normal'])
+                    chemin = Paragraph(prog[2], styles['Normal'])
+                    data.append([nom, version, chemin])
 
-            table = Table(data, colWidths=[150, 80, 250])
-            table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, -1), 8),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ]))
+                table = Table(data, colWidths=[150, 80, 250])
+                table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, -1), 8),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                    ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+                ]))
 
-            elements.append(table)
-            doc.build(elements)
-            QMessageBox.information(
-                self, "Succès", f"PDF exporté dans : {fichier}")
+                elements.append(table)
+                doc.build(elements)
+                QMessageBox.information(
+                    self, "Succès", f"PDF exporté dans : {fichier}")
+            except Exception as e:
+                QMessageBox.critical(
+                    self, "Erreur", f"Erreur lors de l'export PDF : {e}")
 
     def exporter_dossiers_pdf(self):
         """Exporte la liste des dossiers vides en PDF."""

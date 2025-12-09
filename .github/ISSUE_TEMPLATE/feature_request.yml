@@ -1,0 +1,51 @@
+name: Feature Request
+description: Suggérer une nouvelle fonctionnalité
+title: "[FEATURE] "
+labels: ["enhancement"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci de nous aider à améliorer l'application ! Partagez votre idée ci-dessous.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description de la fonctionnalité
+      description: Décrivez la fonctionnalité que vous souhaitez ajouter
+      placeholder: "Je voudrais que l'application puisse..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Pourquoi cette fonctionnalité serait-elle utile ?
+      placeholder: "Cela serait utile parce que..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Implémentation proposée (optionnel)
+      description: Avez-vous une idée sur comment implémenter cela ?
+      placeholder: "Voici comment ce pourrait être implémenté..."
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives envisagées (optionnel)
+      description: Y a-t-il d'autres approches possibles ?
+      placeholder: "Voici d'autres approches..."
+
+  - type: checkboxes
+    id: priority
+    attributes:
+      label: Priorité
+      options:
+        - label: "Basse priorité (nice to have)"
+        - label: "Moyenne priorité (important)"
+        - label: "Haute priorité (très utile)"

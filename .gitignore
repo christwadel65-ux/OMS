@@ -5,12 +5,7 @@ __pycache__/
 *.so
 .Python
 *.egg-info/
-
-# Build outputs
-build/
-dist/
-installer/
-*.spec.bak
+*.egg
 
 # Virtual Environment
 venv/
@@ -18,35 +13,33 @@ venv/
 env/
 ENV/
 
-# Logs et exports
-logs/
-exports/
-*.log
+# Build outputs
+build/
+dist/
+*.spec.bak
 
 # IDE
-.vscode/
 .idea/
 *.swp
 *.swo
 *~
-.DS_Store
 
-# Windows
+# OS
+.DS_Store
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 *.lnk
 
-# Anciens fichiers venv (à ne plus utiliser)
-venv/Include/
-venv/Lib/
-venv/Scripts/
-venv/pyvenv.cfg
-venv/venv.sln
-venv/dev.spec
-venv/fix_indent
-venv/readme.rst
+# Logs
+*.log
+logs/
+
+# Exports
+exports/
+*.pdf
+*.xlsx
 
 # Fichiers de backup
 *.bak

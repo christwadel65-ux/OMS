@@ -1,0 +1,14 @@
+# Dépendances pour Outil de Maintenance v2.0
+
+# Interface graphique
+PyQt5>=5.15.0
+
+# Génération de PDF
+reportlab>=3.6.0
+
+# Gestion de la corbeille Windows (optionnel)
+# Décommenter si vous voulez la fonction de vidage de corbeille
+# winshell>=0.6
+
+# Pour l'analyse système avancée (optionnel)
+# psutil>=5.9.0

@@ -1,0 +1,52 @@
+MIT License
+
+Copyright (c) 2025  C.L (Skill_teams)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+═══════════════════════════════════════════════════════════════
+
+CLAUSE DE NON-RESPONSABILITÉ :
+
+L'Outil de Maintenance Système est fourni "tel quel" sans garantie d'aucune
+sorte. L'auteur ne peut être tenu responsable de toute perte de données ou
+dommage causé par l'utilisation de ce logiciel.
+
+RECOMMANDATIONS :
+
+- Effectuez toujours une sauvegarde avant d'utiliser les fonctions de
+  nettoyage ou de suppression
+- Vérifiez les éléments avant de les supprimer définitivement
+- Utilisez les droits administrateur avec précaution
+
+═══════════════════════════════════════════════════════════════
+
+DÉPENDANCES TIERCES :
+
+Ce logiciel utilise les bibliothèques open-source suivantes :
+
+• PyQt5 - Interface graphique
+  License: GPL v3
+  https://www.riverbankcomputing.com/software/pyqt/
+
+• ReportLab - Génération de PDF
+  License: BSD-like
+  https://www.reportlab.com/
+
+Merci aux contributeurs de ces projets !

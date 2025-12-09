@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+
+# Build outputs
+build/
+dist/
+installer/
+*.spec.bak
+
+# Virtual Environment
+venv/
+.venv/
+env/
+ENV/
+
+# Logs et exports
+logs/
+exports/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Anciens fichiers venv (à ne plus utiliser)
+venv/Include/
+venv/Lib/
+venv/Scripts/
+venv/pyvenv.cfg
+venv/venv.sln
+venv/dev.spec
+venv/fix_indent
+venv/readme.rst
+
+# Fichiers de backup
+*.bak
+*.tmp
+*~
+
+# Assets optionnels (décommenter si vous voulez les versionner)
+# assets/icon.ico
+# assets/installer_banner.bmp
+# assets/installer_small.bmp

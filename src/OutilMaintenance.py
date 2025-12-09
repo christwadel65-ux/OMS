@@ -2,10 +2,10 @@
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QProgressBar, QTableWidget, QTableWidgetItem, QFileDialog,
-    QMessageBox, QLineEdit, QLabel, QHeaderView, QMenuBar, QAction, QAbstractItemView, QComboBox, QMenu, QInputDialog, QTextEdit, QCheckBox
+    QMessageBox, QLineEdit, QLabel, QHeaderView, QMenuBar, QAction, QAbstractItemView, QComboBox, QMenu, QInputDialog, QTextEdit, QCheckBox, QFrame
 )
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QFont, QColor, QPalette
 import sys
 import os
 import platform
@@ -574,8 +574,9 @@ class MaintenanceTool(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Outil Maintenance v2.0")
-        self.resize(1200, 800)
+        self.setWindowTitle("Outil Maintenance v1.0.1")
+        self.resize(1600, 900)
+        self.setMinimumSize(1300, 800)
 
         # Attributs pour stocker les données (remplace les variables globales)
         self.tous_les_programmes = []
@@ -594,66 +595,123 @@ class MaintenanceTool(QMainWindow):
         self.disk_data = {}
         self.security_data = {}
 
-        # ✅ Thème coloré
+        # ✅ Thème coloré amélioré
         self.setStyleSheet(
-            "QMainWindow { background-color: #1e1e2f; color: #ffffff; }"
-            "QLabel, QTableWidget, QPushButton {background-color: #1e1e2f; color: #ffffff;}"
-            "QTabWidget::pane { border: 1px solid #444;  }"
-            "QTabBar::tab { background: #2b2b3c; color: #ffffff; padding: 8px; }"
-            "QTabBar::tab:selected { background: #3c3c5c; }"
-            "QPushButton { background-color: #3c3c5c; color: #ffffff; border-radius: 5px; padding: 6px; }"
-            "QPushButton:hover { background-color: #50507a; }"
-            "QLineEdit { background-color: #2b2b3c; color: #ffffff; border: 1px solid #555; padding: 4px; }"
-            "QTableWidget { background-color: #2b2b3c; color: #ffffff; gridline-color: #555; }"
-            "QHeaderView::section { background-color: #3c3c5c; color: #ffffff; padding: 4px; }"
-            "QProgressBar { background-color: #2b2b3c; color: #ffffff; border: 1px solid #555; text-align: center; }"
-            "QProgressBar::chunk { background-color: #50507a; }"
-            "QMessageBox { background-color: #1e1e2f; color: #ffffff; }"
-            "QMessageBox QLabel { color: #ffffff; }"
-            "QMessageBox QPushButton { background-color: #3c3c5c; color: #ffffff; border-radius: 5px; padding: 6px; }"
-            "QMessageBox QPushButton:hover { background-color: #50507a; }"
-
+            "QMainWindow { background-color: #1e1e2e; color: #f0f0f0; font-family: 'Segoe UI', Arial; font-size: 9pt; }"
+            "QLabel { background-color: #1e1e2e; color: #f0f0f0; font-size: 9pt; }"
+            "QLabel#title { font-size: 11pt; font-weight: bold; color: #64b5f6; }"
+            "QTabWidget::pane { border: 1px solid #3a3a52; background-color: #1e1e2e; }"
+            "QTabBar::tab { background: #2d2d42; color: #b0b0c0; padding: 6px 14px; margin-right: 6px; font-size: 9pt; border: none; min-height: 30px; min-width: 200px; }"
+            "QTabBar::tab:selected { background: #3a4a7c; color: #ffffff; border-bottom: 2px solid #64b5f6; font-weight: bold; }"
+            "QTabBar::tab:hover:!selected { background: #35354a; color: #d0d0d0; }"
+            "QPushButton { background-color: #3a4a7c; color: #ffffff; border: none; border-radius: 4px; padding: 7px 14px; font-size: 9pt; font-weight: 600; min-height: 28px; }"
+            "QPushButton:hover { background-color: #4a5a9c; color: #ffffff; }"
+            "QPushButton:pressed { background-color: #2a3a6c; color: #ffffff; }"
+            "QPushButton:disabled { background-color: #2d2d42; color: #707070; }"
+            "QLineEdit { background-color: #2d2d42; color: #f0f0f0; border: 1px solid #3a3a52; border-radius: 3px; padding: 5px; font-size: 9pt; selection-background-color: #3a4a7c; min-height: 26px; }"
+            "QLineEdit:focus { border: 1px solid #64b5f6; color: #ffffff; }"
+            "QTableWidget { background-color: #2d2d42; alternate-background-color: #35354a; color: #f0f0f0; gridline-color: #3a3a52; font-size: 9pt; }"
+            "QTableWidget::item { padding: 4px; color: #f0f0f0; }"
+            "QTableWidget::item:selected { background-color: #3a4a7c; color: #ffffff; }"
+            "QHeaderView::section { background-color: #3a4a7c; color: #ffffff; padding: 5px; border: none; font-weight: bold; font-size: 9pt; }"
+            "QProgressBar { background-color: #2d2d42; color: #f0f0f0; border: 1px solid #3a3a52; border-radius: 3px; text-align: center; font-size: 8pt; padding: 2px; height: 18px; }"
+            "QProgressBar::chunk { background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #64b5f6, stop:1 #42a5f5); border-radius: 2px; }"
+            "QTextEdit { background-color: #2d2d42; color: #f0f0f0; border: 1px solid #3a3a52; border-radius: 3px; padding: 5px; font-family: 'Consolas', monospace; font-size: 8pt; }"
+            "QTextEdit:focus { border: 1px solid #64b5f6; color: #ffffff; }"
+            "QCheckBox { color: #ffffff; spacing: 6px; font-size: 9pt; background-color: transparent; font-weight: 500; }"
+            "QCheckBox::indicator { width: 18px; height: 18px; }"
+            "QCheckBox::indicator:unchecked { background-color: #2d2d42; border: 2px solid #555555; border-radius: 3px; }"
+            "QCheckBox::indicator:checked { background-color: #3a4a7c; border: 2px solid #64b5f6; image: url(); }"
+            "QCheckBox::indicator:hover { border: 2px solid #64b5f6; }"
+            "QComboBox { background-color: #2d2d42; color: #f0f0f0; border: 1px solid #3a3a52; border-radius: 3px; padding: 5px; font-size: 9pt; min-height: 26px; }"
+            "QComboBox::drop-down { border: none; }"
+            "QComboBox::down-arrow { image: url(); }"
+            "QComboBox QAbstractItemView { background-color: #2d2d42; color: #f0f0f0; selection-background-color: #3a4a7c; }"
+            "QMessageBox { background-color: #1e1e2e; color: #f0f0f0; }"
+            "QMessageBox QLabel { color: #f0f0f0; }"
+            "QMessageBox QPushButton { background-color: #3a4a7c; color: #ffffff; border: none; border-radius: 4px; padding: 7px 14px; font-size: 9pt; font-weight: 600; min-height: 28px; }"
+            "QMessageBox QPushButton:hover { background-color: #4a5a9c; }"
+            "QMessageBox QPushButton:pressed { background-color: #2a3a6c; }"
+            "QMenu { background-color: #2d2d42; color: #f0f0f0; border: 1px solid #3a3a52; }"
+            "QMenu::item:selected { background-color: #3a4a7c; color: #ffffff; }"
+            "QMenuBar { background-color: #1e1e2e; color: #f0f0f0; border-bottom: 1px solid #3a3a52; font-size: 9pt; padding: 6px 12px; }"
+            "QMenuBar::item { padding: 4px 10px; margin-right: 8px; }"
+            "QMenuBar::item:selected { background-color: #3a4a7c; color: #ffffff; }"
+            "QFrame#headerBar { background-color: #181824; border-bottom: 1px solid #3a3a52; }"
+            "QPushButton#headerButton { background-color: #2d2d42; color: #f0f0f0; border: 1px solid #3a3a52; border-radius: 7px; padding: 8px 14px; font-size: 9pt; font-weight: 700; min-width: 150px; }"
+            "QPushButton#headerButton:hover { background-color: #3a4a7c; border-color: #64b5f6; }"
+            "QPushButton#headerButton:pressed { background-color: #2a3a6c; }"
         )
 
-        # ✅ Menu avec icônes et raccourcis
-        menu_bar = QMenuBar(self)
-        self.setMenuBar(menu_bar)
+        # ✅ Actions
+        self.action_export = QAction("💾 Exporter la liste", self)
+        self.action_export.setShortcut("Ctrl+E")
+        self.action_export.triggered.connect(self.exporter_liste)
+        self.action_export_pdf_prog = QAction(
+            "📄 Exporter programmes en PDF", self)
+        self.action_export_pdf_prog.triggered.connect(
+            self.exporter_programmes_pdf)
+        self.action_export_pdf_dos = QAction(
+            "📄 Exporter dossiers en PDF", self)
+        self.action_export_pdf_dos.triggered.connect(
+            self.exporter_dossiers_pdf)
+        self.action_quit = QAction("❌ Quitter", self)
+        self.action_quit.setShortcut("Ctrl+Q")
+        self.action_quit.triggered.connect(self.close)
+        self.action_about = QAction("ℹ️ À propos", self)
+        self.action_about.setShortcut("F1")
+        self.action_about.triggered.connect(self.show_about)
+        self.addActions([
+            self.action_export,
+            self.action_export_pdf_prog,
+            self.action_export_pdf_dos,
+            self.action_quit,
+            self.action_about,
+        ])
 
-        fichier_menu = menu_bar.addMenu("Fichier")
-        action_export = QAction(QIcon.fromTheme(
-            "document-save"), "Exporter la liste", self)
-        action_export.setShortcut("Ctrl+E")
-        action_export.triggered.connect(self.exporter_liste)
-        fichier_menu.addAction(action_export)
-        action_export_pdf_prog = QAction(QIcon.fromTheme(
-            "document-export"), "Exporter programmes en PDF", self)
-        action_export_pdf_prog.triggered.connect(self.exporter_programmes_pdf)
-        fichier_menu.addAction(action_export_pdf_prog)
+        # ✅ Barre d'actions simple (boutons au lieu de menu déroulant)
+        header_bar = QFrame()
+        header_bar.setObjectName("headerBar")
+        header_layout = QHBoxLayout(header_bar)
+        header_layout.setContentsMargins(14, 10, 14, 8)
+        header_layout.setSpacing(10)
 
-        action_export_pdf_dos = QAction(QIcon.fromTheme(
-            "document-export"), "Exporter dossiers en PDF", self)
-        action_export_pdf_dos.triggered.connect(self.exporter_dossiers_pdf)
-        fichier_menu.addAction(action_export_pdf_dos)
+        def make_header_button(text, slot):
+            btn = QPushButton(text)
+            btn.setObjectName("headerButton")
+            btn.clicked.connect(slot)
+            return btn
 
-        action_quit = QAction(QIcon.fromTheme(
-            "application-exit"), "Quitter", self)
-        action_quit.setShortcut("Ctrl+Q")
-        action_quit.triggered.connect(self.close)
-        fichier_menu.addAction(action_quit)
-
-        aide_menu = menu_bar.addMenu("Aide")
-        action_about = QAction(QIcon.fromTheme("help-about"), "À propos", self)
-        action_about.setShortcut("F1")
-        action_about.triggered.connect(self.show_about)
-        aide_menu.addAction(action_about)
+        header_layout.addWidget(make_header_button(
+            "💾 Exporter la liste", self.exporter_liste))
+        header_layout.addWidget(make_header_button(
+            "📄 PDF Programmes", self.exporter_programmes_pdf))
+        header_layout.addWidget(make_header_button(
+            "📄 PDF Dossiers", self.exporter_dossiers_pdf))
+        header_layout.addWidget(make_header_button(
+            "ℹ️ À propos", self.show_about))
+        header_layout.addStretch()
+        header_layout.addWidget(make_header_button("❌ Quitter", self.close))
 
         # ✅ Onglets
         self.tabs = QTabWidget()
-        self.setCentralWidget(self.tabs)
+        self.tabs.tabBar().setElideMode(Qt.ElideNone)
+        self.tabs.tabBar().setUsesScrollButtons(True)
+        self.tabs.tabBar().setExpanding(True)
+
+        central = QWidget()
+        main_layout = QVBoxLayout(central)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+        main_layout.addWidget(header_bar)
+        main_layout.addWidget(self.tabs)
+        self.setCentralWidget(central)
 
         # --- Onglet Programmes ---
         tab_programmes = QWidget()
         layout_prog = QVBoxLayout(tab_programmes)
+        layout_prog.setContentsMargins(10, 10, 10, 10)
+        layout_prog.setSpacing(10)
         self.tabs.addTab(tab_programmes, "Programmes installés")
 
         btn_layout = QHBoxLayout()
@@ -838,6 +896,7 @@ class MaintenanceTool(QMainWindow):
         self.table_startup.setHorizontalHeaderLabels(["Nom", "Chemin"])
         self.table_startup.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table_startup.setMaximumHeight(200)
+        self.table_startup.setEditTriggers(QAbstractItemView.NoEditTriggers)
         layout_security.addWidget(self.table_startup)
 
         # Programmes obsolètes
@@ -848,6 +907,7 @@ class MaintenanceTool(QMainWindow):
             ["Programme", "Version", "Raison"])
         self.table_obsolete.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table_obsolete.setMaximumHeight(200)
+        self.table_obsolete.setEditTriggers(QAbstractItemView.NoEditTriggers)
         layout_security.addWidget(self.table_obsolete)
 
         # Services suspects
@@ -856,7 +916,11 @@ class MaintenanceTool(QMainWindow):
         self.table_services.setHorizontalHeaderLabels(
             ["Service", "Description", "Remarque"])
         self.table_services.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table_services.setEditTriggers(QAbstractItemView.NoEditTriggers)
         layout_security.addWidget(self.table_services)
+
+        # ✅ Configuration des polices (après création de tous les widgets)
+        self._setup_fonts()
 
     # ✅ Fonctions principales
 
@@ -883,8 +947,13 @@ class MaintenanceTool(QMainWindow):
             QApplication.clipboard().setText(texte)
 
     def show_about(self):
-        QMessageBox.information(
-            self, "À propos", "Outil Maintenance : Auteur: c.Lecomte Vers. 1.0")
+        msg = QMessageBox(self)
+        msg.setWindowTitle("À propos")
+        msg.setIcon(QMessageBox.Information)
+        msg.setText("Outil Maintenance : Auteur: c.Lecomte Vers. 1.0.1")
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.setTextInteractionFlags(Qt.NoTextInteraction)
+        msg.exec_()
 
     def parcourir_dossier(self):
         chemin = QFileDialog.getExistingDirectory(
@@ -1475,6 +1544,53 @@ class MaintenanceTool(QMainWindow):
 
         logging.info("Application fermée.")
         event.accept()
+
+    def _setup_fonts(self):
+        """Configure les polices et réduit les espacements pour une meilleure apparence."""
+        # Augmenter les marges et espacements des layouts
+        for layout in self.findChildren(QVBoxLayout):
+            layout.setContentsMargins(10, 10, 10, 10)
+            layout.setSpacing(12)
+
+        for layout in self.findChildren(QHBoxLayout):
+            layout.setContentsMargins(10, 10, 10, 10)
+            layout.setSpacing(12)
+
+        # Définir les polices principales
+        font_normal = QFont("Segoe UI", 9)
+        font_normal.setStyleStrategy(QFont.PreferAntialias)
+
+        font_bold = QFont("Segoe UI", 9, QFont.Bold)
+        font_bold.setStyleStrategy(QFont.PreferAntialias)
+
+        font_title = QFont("Segoe UI", 10, QFont.Bold)
+        font_title.setStyleStrategy(QFont.PreferAntialias)
+
+        font_mono = QFont("Consolas", 8)
+        font_mono.setStyleStrategy(QFont.PreferAntialias)
+
+        # Appliquer les polices à la fenêtre principale
+        self.setFont(font_normal)
+
+        # Trouver tous les widgets et appliquer les polices appropriées
+        for widget in self.findChildren(QLabel):
+            widget.setFont(font_normal)
+
+        for widget in self.findChildren(QPushButton):
+            widget.setFont(font_bold)
+
+        for widget in self.findChildren(QLineEdit):
+            widget.setFont(font_normal)
+
+        for widget in self.findChildren(QTableWidget):
+            widget.setFont(font_normal)
+            widget.setAlternatingRowColors(True)
+
+        for widget in self.findChildren(QTextEdit):
+            widget.setFont(font_mono)
+
+        for widget in self.findChildren(QCheckBox):
+            widget.setFont(font_normal)
 
 
 if __name__ == "__main__":

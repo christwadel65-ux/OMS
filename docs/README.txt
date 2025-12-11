@@ -1,6 +1,6 @@
 OUTIL DE MAINTENANCE SYSTÈME
 Version 2.1
-Auteur: c.Lecomte
+Auteur: c.L (Skill Teams)
 Date: 9 décembre 2025
 
 ═══════════════════════════════════════════════════════════════
@@ -83,4 +83,4 @@ Pour toute question ou problème :
 
 Bonne utilisation !
 
-c.Lecomte
+c.L

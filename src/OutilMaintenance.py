@@ -1,4 +1,3 @@
-
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QProgressBar, QTableWidget, QTableWidgetItem, QFileDialog,
@@ -28,9 +27,25 @@ logging.basicConfig(level=logging.INFO,
 """
 Outil de Maintenance Système
 Auteur: c.Lecomte
-Version: 2.0
+Version: 1.0.2
 Description: Application PyQt5 pour gérer les programmes installés et détecter les dossiers vides.
 """
+
+# Helper pour masquer la fenêtre console sur Windows
+def get_subprocess_startupinfo():
+    """Retourne les paramètres pour masquer la fenêtre console sur Windows."""
+    if platform.system() == "Windows":
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        startupinfo.wShowWindow = subprocess.SW_HIDE
+        return startupinfo
+    return None
+
+def get_subprocess_creationflags():
+    """Retourne les flags de création pour masquer la console sur Windows."""
+    if platform.system() == "Windows":
+        return subprocess.CREATE_NO_WINDOW
+    return 0
 
 # ✅ Thread pour le scan des dossiers
 
@@ -127,7 +142,13 @@ class ProgramThread(QThread):
                 }
                 """
                 cmd = ["powershell", "-Command", ps_script]
-                result = subprocess.run(cmd, capture_output=True, text=True)
+                result = subprocess.run(
+                    cmd, 
+                    capture_output=True, 
+                    text=True,
+                    startupinfo=get_subprocess_startupinfo(),
+                    creationflags=get_subprocess_creationflags()
+                )
                 lignes = [l for l in result.stdout.splitlines(
                 ) if l.strip() and not l.startswith("DisplayName")]
                 total = len(lignes) or 1
@@ -418,6 +439,181 @@ class CleanupThread(QThread):
         self._is_running = False
 
 
+class UninstallThread(QThread):
+    """
+    Thread pour désinstaller un programme de manière asynchrone.
+    """
+    progress = pyqtSignal(int, str)
+    finished = pyqtSignal(bool, str)
+
+    def __init__(self, programme_nom, display_name):
+        super().__init__()
+        self.programme_nom = programme_nom
+        self.display_name = display_name
+        self._is_running = True
+
+    def run(self):
+        """Exécute la désinstallation du programme."""
+        try:
+            if platform.system() == "Windows":
+                self.progress.emit(10, f"Recherche de {self.display_name}...")
+                
+                # Recherche du programme dans le registre pour trouver la commande de désinstallation
+                ps_script = r"""
+                $paths = @(
+                    'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall',
+                    'HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall',
+                    'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall'
+                )
+                foreach ($path in $paths) {
+                    Get-ItemProperty -Path $path\* |
+                    Where-Object { $_.DisplayName -eq '""" + self.display_name + r"""' } |
+                    Select-Object UninstallString, QuietUninstallString |
+                    ConvertTo-Csv -NoTypeInformation
+                }
+                """
+                
+                self.progress.emit(30, "Récupération des informations de désinstallation...")
+                cmd = ["powershell", "-Command", ps_script]
+                result = subprocess.run(
+                    cmd, 
+                    capture_output=True, 
+                    text=True, 
+                    timeout=30,
+                    startupinfo=get_subprocess_startupinfo(),
+                    creationflags=get_subprocess_creationflags()
+                )
+                
+                uninstall_cmd = None
+                lines = [l for l in result.stdout.splitlines() if l.strip() and not l.startswith('"UninstallString"')]
+                
+                if lines:
+                    parts = lines[0].split(',', 1)
+                    # Utiliser QuietUninstallString si disponible, sinon UninstallString
+                    if len(parts) > 1 and parts[1].strip().strip('"'):
+                        uninstall_cmd = parts[1].strip().strip('"')
+                    elif parts[0].strip().strip('"'):
+                        uninstall_cmd = parts[0].strip().strip('"')
+                
+                if not uninstall_cmd:
+                    self.finished.emit(False, f"Impossible de trouver la commande de désinstallation pour {self.display_name}")
+                    return
+                
+                self.progress.emit(50, f"Désinstallation de {self.display_name}...")
+                logging.info(f"Commande de désinstallation: {uninstall_cmd}")
+                
+                # Vérifier si le désinstalleur existe réellement
+                # Extraire le chemin de l'exécutable de la commande
+                exe_path_to_check = None
+                if uninstall_cmd.startswith('"'):
+                    # Commande avec guillemets
+                    end_quote = uninstall_cmd.find('"', 1)
+                    if end_quote > 0:
+                        exe_path_to_check = uninstall_cmd[1:end_quote]
+                elif '.exe' in uninstall_cmd.lower():
+                    # Commande sans guillemets
+                    exe_end = uninstall_cmd.lower().find('.exe') + 4
+                    # Prendre jusqu'à l'exe, en séparant sur le premier espace après
+                    cmd_part = uninstall_cmd[:exe_end]
+                    if ' /' in cmd_part or ' -' in cmd_part:
+                        # Il y a des arguments avant .exe, prendre seulement le début
+                        exe_path_to_check = cmd_part.split()[0] if ' ' in cmd_part else cmd_part
+                    else:
+                        exe_path_to_check = cmd_part
+                
+                # Vérifier l'existence pour les chemins non-msiexec
+                if exe_path_to_check and 'msiexec' not in exe_path_to_check.lower():
+                    if not os.path.exists(exe_path_to_check):
+                        self.finished.emit(False, 
+                            f"Le désinstalleur n'existe pas: {exe_path_to_check}\n\n"
+                            f"Le programme a peut-être été déplacé ou désinstallé manuellement.\n"
+                            f"Vous pouvez supprimer l'entrée du registre manuellement.")
+                        logging.warning(f"Désinstalleur introuvable: {exe_path_to_check}")
+                        return
+                
+                # Préparer la commande de désinstallation
+                # Certaines commandes incluent des arguments, d'autres non
+                if 'msiexec' in uninstall_cmd.lower():
+                    # Pour les installations MSI, ajouter /quiet pour une désinstallation silencieuse
+                    if '/quiet' not in uninstall_cmd.lower() and '/qn' not in uninstall_cmd.lower():
+                        uninstall_cmd += ' /quiet /norestart'
+                
+                # Détecter si la commande commence par un chemin (sans guillemets) avec des espaces
+                # et l'entourer de guillemets si nécessaire
+                if uninstall_cmd and not uninstall_cmd.startswith('"'):
+                    # Chercher si c'est un chemin avec .exe
+                    if '.exe' in uninstall_cmd.lower():
+                        # Séparer le chemin de l'exe et les arguments
+                        exe_end = uninstall_cmd.lower().find('.exe') + 4
+                        exe_path = uninstall_cmd[:exe_end]
+                        args = uninstall_cmd[exe_end:]
+                        
+                        # Si le chemin contient des espaces, ajouter des guillemets
+                        if ' ' in exe_path and not exe_path.startswith('"'):
+                            uninstall_cmd = f'"{exe_path}"{args}'
+                
+                self.progress.emit(70, "Exécution de la désinstallation...")
+                logging.info(f"Commande finale: {uninstall_cmd}")
+                
+                # Exécuter avec un timeout de 5 minutes
+                # Utiliser Popen pour pouvoir vérifier si le processus est toujours en cours
+                import time
+                process = subprocess.Popen(
+                    uninstall_cmd,
+                    shell=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    startupinfo=get_subprocess_startupinfo(),
+                    creationflags=get_subprocess_creationflags()
+                )
+                
+                # Attendre que le processus se termine (avec timeout)
+                try:
+                    stdout, stderr = process.communicate(timeout=300)
+                    returncode = process.returncode
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    self.finished.emit(False, "La désinstallation a pris trop de temps (timeout de 5 minutes).")
+                    return
+                
+                self.progress.emit(100, "Désinstallation terminée")
+                
+                # Vérifier le code de retour
+                if returncode == 0 or returncode == 3010:  # 3010 = reboot required
+                    message = f"Programme '{self.display_name}' désinstallé avec succès."
+                    if returncode == 3010:
+                        message += " Un redémarrage peut être nécessaire."
+                    self.finished.emit(True, message)
+                elif returncode == 1602 or returncode == 1223:
+                    # 1602/1223 = User cancelled
+                    self.finished.emit(False, "Désinstallation annulée par l'utilisateur.")
+                else:
+                    error_msg = stderr[:200] if stderr else "Aucun message d'erreur"
+                    self.finished.emit(False, f"Erreur lors de la désinstallation (code {returncode}).\n{error_msg}")
+                    
+            else:
+                # Pour Linux
+                self.progress.emit(50, f"Désinstallation de {self.programme_nom}...")
+                cmd = ["sudo", "apt-get", "remove", "-y", self.programme_nom]
+                process = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+                
+                if process.returncode == 0:
+                    self.finished.emit(True, f"Programme '{self.programme_nom}' désinstallé avec succès.")
+                else:
+                    self.finished.emit(False, f"Erreur lors de la désinstallation: {process.stderr[:200]}")
+                    
+        except subprocess.TimeoutExpired:
+            self.finished.emit(False, "La désinstallation a pris trop de temps (timeout).")
+        except Exception as e:
+            logging.error(f"Erreur désinstallation: {e}")
+            self.finished.emit(False, f"Erreur: {str(e)}")
+
+    def stop(self):
+        """Arrête le thread proprement."""
+        self._is_running = False
+
+
 class SecurityAnalysisThread(QThread):
     """
     Thread pour analyser la sécurité du système.
@@ -513,7 +709,13 @@ class SecurityAnalysisThread(QThread):
                 """
                 cmd = ["powershell", "-Command", ps_script]
                 result = subprocess.run(
-                    cmd, capture_output=True, text=True, timeout=30)
+                    cmd, 
+                    capture_output=True, 
+                    text=True, 
+                    timeout=30,
+                    startupinfo=get_subprocess_startupinfo(),
+                    creationflags=get_subprocess_creationflags()
+                )
 
                 for ligne in result.stdout.splitlines():
                     if any(pattern in ligne.lower() for pattern in obsolete_patterns):
@@ -537,7 +739,11 @@ class SecurityAnalysisThread(QThread):
                 result = subprocess.run(
                     ["powershell", "-Command",
                         "Get-Service | Where-Object {$_.Status -eq 'Running'} | Select-Object Name, DisplayName | ConvertTo-Csv -NoTypeInformation"],
-                    capture_output=True, text=True, timeout=15
+                    capture_output=True, 
+                    text=True, 
+                    timeout=15,
+                    startupinfo=get_subprocess_startupinfo(),
+                    creationflags=get_subprocess_creationflags()
                 )
 
                 # Services souvent inutiles ou suspects
@@ -574,7 +780,7 @@ class MaintenanceTool(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Outil Maintenance v1.0.1")
+        self.setWindowTitle("Outil Maintenance v1.0.2")
         self.resize(1600, 900)
         self.setMinimumSize(1300, 800)
 
@@ -590,6 +796,7 @@ class MaintenanceTool(QMainWindow):
         self.disk_thread = None
         self.cleanup_thread = None
         self.security_thread = None
+        self.uninstall_thread = None
 
         # Données pour les nouvelles fonctionnalités
         self.disk_data = {}
@@ -718,6 +925,11 @@ class MaintenanceTool(QMainWindow):
         self.btn_list = QPushButton("Lister les programmes")
         self.btn_list.clicked.connect(self.lancer_scan_programmes)
         btn_layout.addWidget(self.btn_list)
+
+        # ✅ Bouton désinstaller
+        self.btn_uninstall = QPushButton("Désinstaller le programme sélectionné")
+        self.btn_uninstall.clicked.connect(self.desinstaller_programme)
+        btn_layout.addWidget(self.btn_uninstall)
 
         # ✅ Bouton recherche globale
         self.btn_global_search = QPushButton("Recherche globale (C:)")
@@ -950,7 +1162,7 @@ class MaintenanceTool(QMainWindow):
         msg = QMessageBox(self)
         msg.setWindowTitle("À propos")
         msg.setIcon(QMessageBox.Information)
-        msg.setText("Outil Maintenance : Auteur: c.Lecomte Vers. 1.0.1")
+        msg.setText("Outil Maintenance : Auteur: c.Lecomte Vers. 1.0.2")
         msg.setStandardButtons(QMessageBox.Ok)
         msg.setTextInteractionFlags(Qt.NoTextInteraction)
         msg.exec_()
@@ -1088,6 +1300,69 @@ class MaintenanceTool(QMainWindow):
             self, "Résultats",
             f"Fichiers trouvés ({len(resultats)} total):\n{texte}{message_limite}")
         logging.info(f"Recherche terminée: {len(resultats)} fichiers trouvés.")
+
+    def desinstaller_programme(self):
+        """Désinstalle le programme sélectionné dans le tableau."""
+        selection = self.table_programmes.selectionModel().selectedRows()
+        if not selection:
+            QMessageBox.warning(
+                self, "Attention",
+                "Veuillez sélectionner un programme à désinstaller.")
+            return
+
+        # Récupérer le nom du programme sélectionné
+        row = selection[0].row()
+        programme_nom = self.table_programmes.item(row, 0).text()
+        programme_version = self.table_programmes.item(row, 1).text() if self.table_programmes.item(row, 1) else "N/A"
+
+        # Demander confirmation
+        confirm = QMessageBox.question(
+            self, "Confirmation de désinstallation",
+            f"⚠️ ATTENTION ⚠️\n\n"
+            f"Vous êtes sur le point de désinstaller :\n\n"
+            f"Programme : {programme_nom}\n"
+            f"Version : {programme_version}\n\n"
+            f"Cette action peut ne pas être réversible.\n"
+            f"Voulez-vous continuer ?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+
+        if confirm != QMessageBox.Yes:
+            return
+
+        # Lancer la désinstallation
+        self.progress_prog.setValue(0)
+        self.btn_uninstall.setEnabled(False)
+        
+        self.uninstall_thread = UninstallThread(programme_nom, programme_nom)
+        self.uninstall_thread.progress.connect(self.update_uninstall_progress)
+        self.uninstall_thread.finished.connect(self.afficher_resultat_desinstallation)
+        self.uninstall_thread.start()
+        logging.info(f"Désinstallation lancée pour: {programme_nom}")
+
+    def update_uninstall_progress(self, value, message):
+        """Met à jour la progression de la désinstallation."""
+        self.progress_prog.setValue(value)
+        self.statusBar().showMessage(message, 3000)
+
+    def afficher_resultat_desinstallation(self, success, message):
+        """Affiche le résultat de la désinstallation."""
+        self.btn_uninstall.setEnabled(True)
+        self.progress_prog.setValue(0)
+        
+        if success:
+            QMessageBox.information(
+                self, "Succès",
+                f"✅ {message}\n\nLa liste des programmes va être actualisée.")
+            logging.info(f"Désinstallation réussie: {message}")
+            # Rafraîchir automatiquement la liste des programmes
+            self.lancer_scan_programmes()
+        else:
+            QMessageBox.critical(
+                self, "Erreur",
+                f"❌ Échec de la désinstallation\n\n{message}\n\n"
+                f"Note: Certains programmes nécessitent des droits administrateur ou un désinstalleur manuel.")
+            logging.error(f"Échec désinstallation: {message}")
 
     def ouvrir_programme(self, row, col):
         """Ouvre l'emplacement du programme sélectionné."""
@@ -1541,6 +1816,10 @@ class MaintenanceTool(QMainWindow):
         if self.security_thread and self.security_thread.isRunning():
             self.security_thread.stop()
             self.security_thread.wait(1000)
+
+        if self.uninstall_thread and self.uninstall_thread.isRunning():
+            self.uninstall_thread.stop()
+            self.uninstall_thread.wait(1000)
 
         logging.info("Application fermée.")
         event.accept()

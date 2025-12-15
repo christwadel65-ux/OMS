@@ -1,4 +1,56 @@
-# 📁 Structure du Projet - Outil de Maintenance Système
+# �️ Outil de Maintenance Système
+
+**Version** : 1.0.2  
+**Auteur** : c.Lecomte  
+**Date de mise à jour** : 15 décembre 2025
+
+## 📋 Description
+
+Application PyQt5 complète pour la gestion et la maintenance des systèmes Windows. Permet de gérer les programmes installés, détecter les dossiers vides, analyser l'espace disque, effectuer des nettoyages système et analyser la sécurité.
+
+## ✨ Fonctionnalités principales
+
+### 📦 Gestion des programmes
+- ✅ **Liste des programmes installés** avec nom, version et chemin
+- ✅ **Désinstallation de programmes** (NOUVEAU v1.0.2)
+  - Vérification de l'existence du désinstalleur
+  - Attente de la fin de la désinstallation
+  - Rafraîchissement automatique de la liste
+  - Masquage des fenêtres PowerShell
+- ✅ **Recherche et filtrage** par mot-clé (nom, version, chemin)
+- ✅ **Recherche globale** dans tout le disque C:
+
+### 📁 Gestion des dossiers
+- ✅ **Détection des dossiers vides**
+- ✅ **Affichage de la taille** des dossiers
+- ✅ **Suppression sélective** des dossiers vides
+- ✅ **Ouverture dans l'explorateur** par double-clic
+
+### 💾 Analyse disque
+- ✅ **Informations des partitions** (espace total, utilisé, libre)
+- ✅ **Recherche des gros fichiers** (taille personnalisable)
+- ✅ **Tri et visualisation** des fichiers volumineux
+
+### 🗑️ Nettoyage système
+- ✅ Fichiers temporaires Windows
+- ✅ Fichiers temporaires utilisateur
+- ✅ Prefetch (nécessite droits admin)
+- ✅ Corbeille
+- ✅ Cache des navigateurs (Chrome, Edge, Firefox)
+- ✅ Rapport détaillé du nettoyage
+
+### 🔐 Analyse de sécurité
+- ✅ Programmes au démarrage
+- ✅ Détection de programmes obsolètes
+- ✅ Services Windows suspects
+
+### 📄 Export de données
+- ✅ **Export TXT** des listes
+- ✅ **Export PDF** des programmes et dossiers
+
+---
+
+## 📁 Structure du Projet
 
 ```
 Dossier_vide_search/
@@ -95,11 +147,29 @@ python build.py
 
 | Fichier | Description |
 |---------|-------------|
-| `src/OutilMaintenance.py` | Application principale |
-| `requirements.txt` | Liste des dépendances |
-| `docs/GUIDE_NOUVELLES_FONCTIONS.md` | Documentation utilisateur |
-| `build_tools/setup.iss` | Script d'installation |
-| `build_tools/build.py` | Automatisation du build |
+| `src/OutilMaintenance.py` | Application principale (1800+ lignes) |
+| `requirements.txt` | Liste des dépendances Python |
+| `docs/GUIDE_NOUVELLES_FONCTIONS.md` | Documentation utilisateur complète |
+| `build_tools/setup.iss` | Script d'installation Inno Setup |
+| `build_tools/build.py` | Script de build automatique |
+
+---
+
+## 🆕 Nouveautés v1.0.2
+
+### Désinstallation de programmes
+- ✅ Bouton "Désinstaller le programme sélectionné" dans l'onglet Programmes
+- ✅ Message de confirmation avant désinstallation
+- ✅ Vérification de l'existence du désinstalleur
+- ✅ Attente de la fin réelle du processus de désinstallation
+- ✅ Rafraîchissement automatique de la liste après désinstallation
+- ✅ Gestion des codes d'erreur (annulation utilisateur, etc.)
+
+### Améliorations techniques
+- ✅ Masquage de toutes les fenêtres PowerShell
+- ✅ Meilleure gestion des chemins avec espaces
+- ✅ Messages d'erreur plus informatifs
+- ✅ Support des installations MSI avec désinstallation silencieuse
 
 ---
 
@@ -128,5 +198,20 @@ Si vous aviez des chemins en dur dans votre code, mettez-les à jour :
 
 ---
 
+## 🔧 Configuration requise
+
+- **OS** : Windows 10/11 (optimisé pour Windows)
+- **Python** : 3.8+ (pour développement)
+- **Dépendances** : PyQt5, ReportLab, PyInstaller
+
+---
+
+## 📞 Support
+
+Pour toute question ou suggestion d'amélioration, consultez la documentation dans `docs/GUIDE_NOUVELLES_FONCTIONS.md`.
+
+---
+
 **Structure créée le** : 9 décembre 2025  
-**Version** : 2.1
+**Dernière mise à jour** : 15 décembre 2025  
+**Version** : 1.0.2

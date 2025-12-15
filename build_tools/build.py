@@ -1,6 +1,6 @@
 # Script de build complet pour Outil de Maintenance Système
 # Auteur: c.Lecomte
-# Version: 2.1
+# Version: 1.0.2
 # Usage: python build.py
 
 import os
@@ -14,7 +14,7 @@ project_root = Path(__file__).parent.parent
 os.chdir(project_root)
 
 print("=" * 70)
-print("  BUILD - Outil de Maintenance Système v2.1")
+print("  BUILD - Outil de Maintenance Système v1.0.2")
 print("  Auteur: c.Lecomte")
 print("=" * 70)
 print(f"Répertoire de travail: {os.getcwd()}")

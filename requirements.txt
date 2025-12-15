@@ -1,5 +1,8 @@
 # Dépendances pour Outil de Maintenance v2.0
 
+# Compilation et distribution
+PyInstaller>=6.0.0
+
 # Interface graphique
 PyQt5>=5.15.0
 

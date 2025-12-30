@@ -1,7 +1,7 @@
 # �️ Outil de Maintenance Système
 
 **Version** : 1.0.2  
-**Auteur** : C.L (Skill Teams)
+**Auteur** : C.L (Skill Teams)  
 **Date de mise à jour** : 15 décembre 2025
 
 ## 📋 Description
